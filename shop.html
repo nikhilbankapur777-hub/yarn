@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shop — The Yarn Basket</title>
+<meta name="description" content="Shop handmade crochet pieces from The Yarn Basket. Tap any piece for a full photo preview and order by message." />
+<meta property="og:title" content="Shop — The Yarn Basket" />
+<meta property="og:type" content="website" />
+<link rel="icon" type="image/jpeg" href="images/logo.jpg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,100..900,0..100,0..1;1,9..144,100..900,0..100,0..1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+
+<script>
+  (function () {
+    var R = document.documentElement;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    R.classList.add("js-anim");
+    if (sessionStorage.getItem("yb-wipe")) R.classList.add("wipe-cover");
+  })();
+</script>
+</head>
+
+<body data-page="shop">
+
+<canvas id="trail" aria-hidden="true"></canvas>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div id="site-top"></div>
+
+<main id="main">
+
+  <section class="shop-hero">
+    <span class="ball" style="--s:78px;--c1:#fff3a8;--c2:#e8c547;left:8%;top:22%" aria-hidden="true"></span>
+    <span class="ball" style="--s:56px;--c1:#4f86c0;--c2:#2f5f95;left:19%;bottom:14%;--dl:-2s" aria-hidden="true"></span>
+    <span class="ball" style="--s:90px;--c1:#a9c5a0;--c2:#5f8f6a;right:9%;top:18%;--dl:-1s" aria-hidden="true"></span>
+    <span class="ball" style="--s:52px;--c1:#d9506f;--c2:#f4a6b8;right:20%;bottom:16%;--dl:-3.5s" aria-hidden="true"></span>
+
+    <p class="kicker" data-enter style="--d:200">Handmade, made to order</p>
+    <h1 class="mega display" data-letters style="--d:350">The Shop</h1>
+    <p class="lede" id="shop-count" data-enter style="--d:900">Loading the basket…</p>
+  </section>
+
+  <section class="shop-wrap" aria-label="Products">
+    <div class="pgrid" id="pgrid" aria-live="polite"></div>
+    <p class="shop-msg" id="shop-msg" hidden></p>
+  </section>
+
+</main>
+
+<div id="site-foot"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

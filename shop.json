@@ -1,0 +1,108 @@
+{
+  "_readme": "Add or edit products below. Each product needs: id (unique, no spaces), name, images (3-5 photo paths work best, any number is fine), mrp (original price), price (discounted price). Optional: description, details (bullet list), category, badge, featured (true = shown on the home page), inStock (false = shows Sold out). Put photos in images/shop/. These 6 items are SAMPLES — replace them with real products.",
+
+  "settings": {
+    "currency": "₹",
+    "slideMs": 1800,
+    "whatsapp": ""
+  },
+
+  "products": [
+    {
+      "id": "yb-001",
+      "name": "Sunflower Tote Bag",
+      "category": "Bags",
+      "badge": "Bestseller",
+      "featured": true,
+      "mrp": 1299,
+      "price": 899,
+      "description": "A sunny, roomy tote crocheted in soft cotton yarn. Sturdy enough for books and groceries, pretty enough to turn heads.",
+      "details": ["100% cotton yarn", "Fully lined inside", "Made to order in your colours"],
+      "images": [
+        "images/shop/yb-001-1.jpg",
+        "images/shop/yb-001-2.jpg",
+        "images/shop/yb-001-3.jpg",
+        "images/shop/yb-001-4.jpg"
+      ]
+    },
+    {
+      "id": "yb-002",
+      "name": "Mini Bear Amigurumi",
+      "category": "Toys",
+      "featured": true,
+      "mrp": 799,
+      "price": 599,
+      "description": "A palm-sized bear with a big heart. Stuffed generously and stitched tight so it stays cuddly for years.",
+      "details": ["About 15 cm tall", "Safety eyes", "Choose any colour"],
+      "images": [
+        "images/shop/yb-002-1.jpg",
+        "images/shop/yb-002-2.jpg",
+        "images/shop/yb-002-3.jpg"
+      ]
+    },
+    {
+      "id": "yb-003",
+      "name": "Daisy Coaster Set (4 pcs)",
+      "category": "Home décor",
+      "featured": true,
+      "mrp": 499,
+      "price": 399,
+      "description": "Four cheerful daisy coasters that protect your table and brighten your tea time.",
+      "details": ["Set of 4", "Machine-washable cotton", "Gift ready"],
+      "images": [
+        "images/shop/yb-003-1.jpg",
+        "images/shop/yb-003-2.jpg",
+        "images/shop/yb-003-3.jpg",
+        "images/shop/yb-003-4.jpg",
+        "images/shop/yb-003-5.jpg"
+      ]
+    },
+    {
+      "id": "yb-004",
+      "name": "Cosy Baby Beanie",
+      "category": "Wearables",
+      "badge": "New",
+      "featured": true,
+      "mrp": 699,
+      "price": 549,
+      "description": "A soft, stretchy beanie for little heads, crocheted in baby-friendly yarn.",
+      "details": ["Soft baby yarn", "Sizes on request", "Pom-pom optional"],
+      "images": [
+        "images/shop/yb-004-1.jpg",
+        "images/shop/yb-004-2.jpg",
+        "images/shop/yb-004-3.jpg"
+      ]
+    },
+    {
+      "id": "yb-005",
+      "name": "Crochet Tulip Bouquet",
+      "category": "Gifts",
+      "badge": "Gift favourite",
+      "mrp": 1199,
+      "price": 899,
+      "description": "A bouquet of flowers that never wilt. Wrapped and ready to give.",
+      "details": ["Bunch of 6 tulips", "Wrapped for gifting", "Pick your colour mix"],
+      "images": [
+        "images/shop/yb-005-1.jpg",
+        "images/shop/yb-005-2.jpg",
+        "images/shop/yb-005-3.jpg",
+        "images/shop/yb-005-4.jpg"
+      ]
+    },
+    {
+      "id": "yb-006",
+      "name": "Boho Wall Hanging",
+      "category": "Home décor",
+      "mrp": 1599,
+      "price": 1299,
+      "description": "A textured wall hanging with fringe and wooden dowel — instant cosy corner.",
+      "details": ["About 40 cm wide", "Wooden dowel included", "Custom colours available"],
+      "images": [
+        "images/shop/yb-006-1.jpg",
+        "images/shop/yb-006-2.jpg",
+        "images/shop/yb-006-3.jpg",
+        "images/shop/yb-006-4.jpg"
+      ]
+    }
+  ]
+}

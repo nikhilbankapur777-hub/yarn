@@ -1,0 +1,17 @@
+{
+  "_readme": "Images for the home page, matched by id. Replace the files in the images/ folder (or change src). 'hero' = big arch photo at the top, 'custom' = photo beside Custom Orders, 'about-1/2/3' = polaroids in Our Story (caption shows under each), and every id starting with 'gallery' appears in the photo strip at the bottom — add as many gallery-N entries as you like.",
+
+  "images": [
+    { "id": "hero",      "src": "images/hero.jpg",    "alt": "A handmade crochet piece from The Yarn Basket" },
+    { "id": "custom",    "src": "images/custom.jpg",  "alt": "A custom crochet order in progress" },
+
+    { "id": "about-1",   "src": "images/about-1.jpg", "alt": "Yarn in many colours",        "caption": "Where it all begins" },
+    { "id": "about-2",   "src": "images/about-2.jpg", "alt": "Crochet work in progress",    "caption": "Stitch by stitch" },
+    { "id": "about-3",   "src": "images/about-3.jpg", "alt": "A finished crochet piece",    "caption": "Made with love" },
+
+    { "id": "gallery-1", "src": "images/gallery-1.jpg", "alt": "Crochet piece 1" },
+    { "id": "gallery-2", "src": "images/gallery-2.jpg", "alt": "Crochet piece 2" },
+    { "id": "gallery-3", "src": "images/gallery-3.jpg", "alt": "Crochet piece 3" },
+    { "id": "gallery-4", "src": "images/gallery-4.jpg", "alt": "Crochet piece 4" }
+  ]
+}

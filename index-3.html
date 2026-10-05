@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Yarn Basket — Handmade Crochet</title>
+<meta name="description" content="The Yarn Basket — handmade crochet pieces, stitched with love. Browse the shop, ask for a custom order, and follow along on Instagram." />
+<meta property="og:title" content="The Yarn Basket" />
+<meta property="og:description" content="Handmade crochet, stitched with love." />
+<meta property="og:type" content="website" />
+<link rel="icon" type="image/jpeg" href="images/logo.jpg" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,100..900,0..100,0..1;1,9..144,100..900,0..100,0..1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+
+<script data-intro>
+  /* decide up-front which entry animation to play (prevents a flash) */
+  (function () {
+    var R = document.documentElement;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    R.classList.add("js-anim");
+    if (sessionStorage.getItem("yb-wipe")) R.classList.add("wipe-cover");
+    else if (document.currentScript.hasAttribute("data-intro")) R.classList.add("has-curtain");
+  })();
+</script>
+</head>
+
+<body data-page="home">
+
+<!-- ============ ENTRY: yarn ball rolls, thread draws, curtain splits ============ -->
+<div class="curtain" id="curtain" aria-hidden="true">
+  <div class="curtain-half curtain-l"></div>
+  <div class="curtain-half curtain-r"></div>
+  <div class="curtain-core">
+    <svg viewBox="0 0 800 200" fill="none">
+      <path class="thread" pathLength="1" d="M20,140 C120,40 200,40 280,120 S440,200 520,110 S680,30 780,100" />
+      <g>
+        <circle r="17" fill="#f4a6b8" stroke="#3b1620" stroke-width="5" />
+        <path d="M-12 -6 Q0 2 12 -8 M-14 4 Q0 12 14 2" stroke="#3b1620" stroke-width="3" stroke-linecap="round" />
+        <animateMotion dur="1.4s" begin="0s" fill="freeze" rotate="auto" calcMode="linear"
+          path="M20,140 C120,40 200,40 280,120 S440,200 520,110 S680,30 780,100" />
+      </g>
+    </svg>
+    <p class="curtain-word">
+      <span style="--i:0">T</span><span style="--i:1">h</span><span style="--i:2">e</span>&nbsp;
+      <span style="--i:4">Y</span><span style="--i:5">a</span><span style="--i:6">r</span><span style="--i:7">n</span>&nbsp;
+      <span style="--i:9">B</span><span style="--i:10">a</span><span style="--i:11">s</span><span style="--i:12">k</span><span style="--i:13">e</span><span style="--i:14">t</span>
+    </p>
+  </div>
+</div>
+
+<canvas id="trail" aria-hidden="true"></canvas>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div id="site-top"></div>
+
+<main id="main">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="home">
+    <svg class="hero-thread" viewBox="0 0 1440 800" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M-20,640 C200,520 320,790 540,650 S880,420 1060,600 S1320,770 1460,520" />
+      <path d="M-20,260 C180,360 360,120 600,220 S980,380 1180,200 S1380,120 1460,220" />
+    </svg>
+
+    <span class="ball" style="--s:84px;--c1:#f4a6b8;--c2:#d9506f;left:7%;top:14%;--dl:0s" aria-hidden="true"></span>
+    <span class="ball" style="--s:58px;--c1:#fff3a8;--c2:#e8c547;left:16%;top:56%;--dl:-1.5s" aria-hidden="true"></span>
+    <span class="ball" style="--s:72px;--c1:#a9c5a0;--c2:#5f8f6a;right:6%;top:52%;--dl:-3s" aria-hidden="true"></span>
+
+    <div class="hero-visual">
+      <img data-img="hero" data-ph="The Yarn Basket" alt="Handmade crochet by The Yarn Basket" data-enter style="--d:300" width="720" height="960" />
+    </div>
+
+    <div class="badge hero-badge" aria-hidden="true" data-enter style="--d:1300">
+      <svg viewBox="0 0 200 200"><defs><path id="ring-a" d="M100,100 m-76,0 a76,76 0 1,1 152,0 a76,76 0 1,1 -152,0" /></defs>
+        <text><textPath href="#ring-a" textLength="470" lengthAdjust="spacing">handmade ✦ with love ✦ handmade ✦ with love ✦</textPath></text></svg>
+    </div>
+
+    <p class="hero-pre" data-enter style="--d:350">The</p>
+    <h1 class="hero-title display" data-letters style="--d:500">Yarn Basket</h1>
+
+    <div class="hero-foot">
+      <div data-enter style="--d:1200">
+        <p class="kicker">Hand Crocheted</p>
+        <p class="lede">Cosy, colourful pieces made stitch by stitch — just for you.</p>
+      </div>
+      <a class="btn btn--butter" href="shop.html" data-enter style="--d:1350">Shop the basket
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+  </section>
+
+  <div class="band marquee" aria-hidden="true" data-marquee="Handmade|Crochet|Made with love|Custom orders|Stitch by stitch|Gift ready"></div>
+
+  <!-- ============ FEATURED ============ -->
+  <section class="section featured" id="featured">
+    <div class="wrap center">
+      <p class="kicker" data-reveal>New on the hook</p>
+      <h2 class="mega" data-words>Our Creations</h2>
+    </div>
+    <div class="orbs-clip"><div class="orbs" id="orbs"></div></div>
+    <div class="wrap foot-row">
+      <p data-reveal>A few favourites from the basket. Tap one to see every photo, or head to the shop for the full collection.</p>
+      <a class="btn btn--ghost" href="shop.html" data-reveal>Explore the shop
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+  </section>
+
+  <!-- ============ CUSTOM ORDERS ============ -->
+  <section class="split" id="custom">
+    <div class="split-text">
+      <p class="kicker" data-reveal>Dreaming of something special?</p>
+      <h2 class="mega" data-words>Custom Orders</h2>
+      <p data-reveal>Pick the colours, the size and the little details — send us your idea and we’ll stitch it just the way you imagine it.</p>
+      <a class="btn" href="https://ig.me/m/the._.yarnbasket" target="_blank" rel="noopener" data-reveal>Message us
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+    <div class="split-media">
+      <img data-img="custom" data-ph="Custom orders" alt="A custom crochet order" loading="lazy" />
+      <div class="badge" aria-hidden="true">
+        <svg viewBox="0 0 200 200"><defs><path id="ring-b" d="M100,100 m-76,0 a76,76 0 1,1 152,0 a76,76 0 1,1 -152,0" /></defs>
+          <text><textPath href="#ring-b" textLength="470" lengthAdjust="spacing">made to order ✦ made to order ✦ made to order ✦</textPath></text></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section class="section about" id="about">
+    <div class="wrap about-grid">
+      <div class="collage">
+        <figure class="polaroid" data-reveal><img data-img="about-1" data-ph="Our story" alt="" loading="lazy" /><figcaption data-caption="about-1"></figcaption></figure>
+        <figure class="polaroid" data-reveal><img data-img="about-2" data-ph="Colours" alt="" loading="lazy" /><figcaption data-caption="about-2"></figcaption></figure>
+        <figure class="polaroid" data-reveal><img data-img="about-3" data-ph="Stitches" alt="" loading="lazy" /><figcaption data-caption="about-3"></figcaption></figure>
+      </div>
+      <div class="about-copy">
+        <p class="kicker" data-reveal>Our story</p>
+        <h2 class="mega" data-words>Every stitch has a story</h2>
+        <p data-reveal>The Yarn Basket is a small crochet studio run with a lot of love and a lot of yarn. Every piece is made by hand — one loop, one stitch, one colour at a time — so no two are ever exactly alike.</p>
+        <p data-reveal>From cuddly toys and cosy wearables to home décor and gifts, everything in the basket is made to be held, gifted and kept. Have an idea of your own? Tell us the colours and we’ll stitch it.</p>
+        <ul class="chips" data-reveal><li>Handmade</li><li>Made to order</li><li>Gift ready</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="section how" id="how">
+    <div class="wrap">
+      <div class="center">
+        <p class="kicker" data-reveal>Simple &amp; personal</p>
+        <h2 class="mega" data-words>How it works</h2>
+      </div>
+      <div class="steps" data-thread>
+        <svg class="steps-thread" viewBox="0 0 1000 120" preserveAspectRatio="none" aria-hidden="true">
+          <path pathLength="1" d="M0,70 C120,10 220,10 330,60 S540,120 660,60 S880,10 1000,60" />
+        </svg>
+        <article class="step" data-reveal>
+          <span class="num">1</span>
+          <h3>Pick your piece</h3>
+          <p>Browse the shop and tap anything you like for a full preview with every photo.</p>
+        </article>
+        <article class="step" data-reveal>
+          <span class="num">2</span>
+          <h3>Send us a message</h3>
+          <p>Message us with the item code. We’ll confirm colours, availability and delivery.</p>
+        </article>
+        <article class="step" data-reveal>
+          <span class="num">3</span>
+          <h3>We crochet it for you</h3>
+          <p>Your piece is stitched by hand, packed with care and sent your way.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GALLERY (built from imagined.json: every id that starts with "gallery") ============ -->
+  <section class="gallery" id="gallery" aria-label="From our Instagram" hidden></section>
+
+</main>
+
+<div id="site-foot"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
