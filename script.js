@@ -138,7 +138,7 @@
       </footer>`;
   };
 
-  /* ---------- fixed layers: page wipe, cursor, trail ---------- */
+  /* ---------- page-transition wipe ---------- */
   document.body.insertAdjacentHTML("afterbegin", `<div class="wipe" aria-hidden="true"></div>`);
 
   document.addEventListener("click", (e) => {
@@ -154,55 +154,8 @@
   });
   addEventListener("pageshow", (e) => { if (e.persisted) root.classList.remove("is-leaving"); });
 
+  /* gentle 3D tilt on product cards (desktop only) */
   if (fine && !reduce) {
-    root.classList.add("has-cursor");
-    const cur = document.createElement("div");
-    cur.className = "cursor";
-    cur.innerHTML = `<div class="cursor-ring"></div><div class="cursor-dot"></div>`;
-    document.body.appendChild(cur);
-    const ring = $(".cursor-ring", cur), dot = $(".cursor-dot", cur);
-    let mx = -100, my = -100, rx = -100, ry = -100;
-
-    const cv = $("#trail"), ctx = cv ? cv.getContext("2d") : null;
-    const pts = [];
-    const fit = () => { if (!cv) return; const d = Math.min(devicePixelRatio || 1, 2); cv.width = innerWidth * d; cv.height = innerHeight * d; ctx.setTransform(d, 0, 0, d, 0, 0); };
-    fit(); addEventListener("resize", fit);
-
-    addEventListener("pointermove", (e) => {
-      mx = e.clientX; my = e.clientY;
-      pts.push({ x: mx, y: my, t: performance.now() });
-      if (pts.length > 60) pts.shift();
-    }, { passive: true });
-    addEventListener("pointerdown", () => cur.classList.add("is-down"));
-    addEventListener("pointerup", () => cur.classList.remove("is-down"));
-    document.addEventListener("pointerover", (e) => {
-      const v = e.target.closest && e.target.closest("[data-cursor]");
-      const l = e.target.closest && e.target.closest("a,button,[role=button],input,textarea");
-      cur.classList.toggle("is-view", !!v);
-      cur.classList.toggle("is-link", !v && !!l);
-      ring.textContent = v ? v.dataset.cursor : "";
-    });
-
-    const loop = (now) => {
-      rx += (mx - rx) * 0.18; ry += (my - ry) * 0.18;
-      dot.style.transform = `translate3d(${mx}px,${my}px,0)`;
-      ring.style.transform = `translate3d(${rx}px,${ry}px,0)`;
-      if (ctx) {
-        ctx.clearRect(0, 0, innerWidth, innerHeight);
-        while (pts.length && now - pts[0].t > 650) pts.shift();
-        ctx.lineCap = "round";
-        for (let i = 1; i < pts.length; i++) {
-          const a = clamp(1 - (now - pts[i].t) / 650, 0, 1);
-          ctx.strokeStyle = `rgba(217,80,111,${(a * 0.9).toFixed(3)})`;
-          ctx.lineWidth = 1.5 + a * 3.5;
-          ctx.beginPath(); ctx.moveTo(pts[i - 1].x, pts[i - 1].y); ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
-        }
-      }
-      requestAnimationFrame(loop);
-    };
-    requestAnimationFrame(loop);
-
-    /* gentle 3D tilt on product cards */
     let tilted = null;
     const untilt = (el) => { if (el) { el.style.setProperty("--rx", "0deg"); el.style.setProperty("--ry", "0deg"); } };
     document.addEventListener("pointermove", (e) => {
@@ -214,8 +167,6 @@
       c.style.setProperty("--ry", (((e.clientX - r.left) / r.width - 0.5) * 9).toFixed(2) + "deg");
       c.style.setProperty("--rx", (-((e.clientY - r.top) / r.height - 0.5) * 9).toFixed(2) + "deg");
     });
-  } else {
-    const cv = $("#trail"); if (cv) cv.remove();
   }
 
   /* ---------- text splitting ---------- */
@@ -262,16 +213,12 @@
   }
 
   /* ---------- scroll-linked parallax ---------- */
-  const hero = $("#home"), orbsClip = $(".orbs-clip");
+  const hero = $("#home");
   let ticking = false;
   const update = () => {
     ticking = false;
     const H = innerHeight;
     if (hero) hero.style.setProperty("--hp", clamp(scrollY / (hero.offsetHeight || 1), 0, 1).toFixed(3));
-    if (orbsClip) {
-      const r = orbsClip.getBoundingClientRect();
-      orbsClip.firstElementChild.style.setProperty("--sp", clamp((H - r.top) / (H + r.height), 0, 1).toFixed(3));
-    }
   };
   if (!reduce) {
     addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
@@ -314,13 +261,18 @@
       const all = data.products.map(normalize);
       const feat = all.filter((p) => p.featured);
       const list = (feat.length ? feat : all).slice(0, 4);
-      wrap.innerHTML = list.map((p) => `
-        <a class="orb" href="shop.html#${encodeURIComponent(p.id)}" data-cursor="View" data-reveal>
-          <span class="orb-img"><img src="${esc(imgSrc(p.images[0], p.name))}" alt="${esc(p.name)}" data-ph="${esc(p.name)}" loading="lazy"></span>
+      const orb = (p, hidden) => `
+        <a class="orb" href="shop.html#${encodeURIComponent(p.id)}" ${hidden ? 'tabindex="-1" aria-hidden="true"' : ""}>
+          <span class="orb-img"><img src="${esc(imgSrc(p.images[0], p.name))}" alt="${hidden ? "" : esc(p.name)}" data-ph="${esc(p.name)}" loading="lazy"></span>
           <span class="orb-name">${esc(p.name)}</span>
           ${p.price ? `<span class="orb-price"><b>${money(p.price, cur)}</b>${p.mrp ? `<s>${money(p.mrp, cur)}</s>` : ""}</span>` : ""}
-        </a>`).join("");
-      prepReveal(wrap);
+        </a>`;
+      let base = list;
+      while (base.length < 6) base = base.concat(list);          // make one set wider than the screen
+      wrap.style.setProperty("--dur", base.length * 7 + "s");
+      wrap.innerHTML =
+        `<div class="orbs-set">${base.map((p) => orb(p, false)).join("")}</div>` +
+        `<div class="orbs-set" aria-hidden="true">${base.map((p) => orb(p, true)).join("")}</div>`;
     });
   }
 
