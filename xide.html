@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src http://127.0.0.1:3737">
+<title>Proton</title>
+<style>
+@font-face{font-family:"Space Grotesk";src:local("Space Grotesk"),url("fonts/SpaceGrotesk.woff2") format("woff2");font-weight:300 700}
+@font-face{font-family:"JetBrains Mono";src:local("JetBrains Mono"),url("fonts/JetBrainsMono.woff2") format("woff2");font-weight:100 800}
+:root{--bg:#000;--side:rgba(255,255,255,.05);--panel:rgba(255,255,255,.07);--line:rgba(255,255,255,.13);--g1:rgba(255,255,255,.085);--g2:rgba(255,255,255,.025);
+--text:#f5f5f7;--mut:rgba(255,255,255,.52);--acc:#ff3b30;--ok:#f5f5f7;--bad:#ff7b72;
+--serif:"Space Grotesk",-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif;--sans:"Space Grotesk",-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;--mono:"JetBrains Mono","SF Mono",Menlo,monospace}
+*{box-sizing:border-box;margin:0}
+[hidden]{display:none!important}
+html,body{height:100%;background:#000;color:var(--text);font:14px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(620px 420px at 20% 6%,rgba(255,255,255,.075),transparent 70%),radial-gradient(720px 520px at 88% 92%,rgba(255,255,255,.055),transparent 70%)}
+button,select,textarea,input{font:inherit;color:inherit}
+button:focus-visible,select:focus-visible,summary:focus-visible,.row:focus-visible{outline:2px solid rgba(255,255,255,.7);outline-offset:2px}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:8px;border:2px solid transparent;background-clip:content-box}
+.drag{-webkit-app-region:drag}
+button,select,input,textarea,summary,.row{-webkit-app-region:no-drag}
+svg.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+/* liquid glass surface */
+#side,#composer,.chart,.stat,.approval,.u,#insights,#editorPane,dialog,.ws,.hb button,.ws button,.btns button{
+background:linear-gradient(135deg,var(--g1),var(--g2));backdrop-filter:blur(28px) saturate(170%);-webkit-backdrop-filter:blur(28px) saturate(170%);
+border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.17),inset 0 -1px 0 rgba(255,255,255,.03),0 10px 30px rgba(0,0,0,.6)}
+#app{position:relative;display:flex;height:100%;padding:10px;gap:10px}
+#side{width:260px;flex:none;border-radius:26px;display:flex;flex-direction:column;padding:0 10px 10px}
+.brand{display:flex;align-items:center;gap:10px;font:600 22px var(--serif);letter-spacing:-.02em;padding:46px 8px 14px;-webkit-app-region:drag;background:linear-gradient(180deg,#fff,rgba(255,255,255,.5));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand svg,.hello svg.logo{color:#fff;fill:currentColor;filter:drop-shadow(0 0 10px rgba(255,255,255,.28))}
+.brand svg{width:26px;height:26px}
+.side-btn{display:flex;align-items:center;gap:9px;background:none;border:0;border-radius:999px;padding:8px 12px;text-align:left;cursor:pointer;color:var(--text)}
+.side-btn:hover{background:rgba(255,255,255,.07)}
+.ws{margin:10px 0;padding:10px;border-radius:20px;box-shadow:none}
+.ws-name{display:flex;gap:8px;align-items:center;font-weight:500;overflow:hidden;white-space:nowrap}
+.ws-name span{overflow:hidden;text-overflow:ellipsis}
+.ws button{display:flex;justify-content:center;align-items:center;gap:7px;margin-top:8px;width:100%;border-radius:999px;padding:6px;cursor:pointer;box-shadow:none}
+.ws button:hover{border-color:rgba(255,255,255,.3)}
+#tree{flex:1;overflow:auto;font:12px var(--mono);padding:4px 0}
+.row{display:flex;align-items:center;gap:6px;padding:3px 8px;border-radius:999px;white-space:nowrap;color:var(--mut);cursor:default}
+.row span{overflow:hidden;text-overflow:ellipsis}
+.row:hover{background:rgba(255,255,255,.07);color:var(--text)}
+.row svg{width:13px;height:13px}
+.row .car{transition:transform .12s}.row .car.open{transform:rotate(90deg)}
+#main{flex:1;min-width:0;display:flex;flex-direction:column}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;height:40px;padding:0 4px 0 8px;color:var(--mut);font:12px var(--mono);-webkit-app-region:drag}
+#wsPath{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.hb{display:flex;gap:8px;align-items:center;flex:none;font:13px var(--sans)}
+.hb button{display:flex;align-items:center;gap:6px;border-radius:999px;padding:5px 13px;cursor:pointer;color:var(--text);box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
+.hb button:hover,.hb button.on{border-color:rgba(255,255,255,.34)}
+.hb button.on{background:rgba(255,255,255,.14)}
+.pill{border-color:rgba(255,59,48,.6)!important;color:var(--acc)!important;font-size:12px}
+#chatWrap{flex:1;overflow:auto}
+#chat{max-width:740px;margin:0 auto;padding:24px 24px 12px;display:flex;flex-direction:column;gap:18px}
+.hello{margin-top:13vh;text-align:center}
+.hello svg.logo{width:76px;height:76px;margin-bottom:10px}
+.hello h1{font:500 36px/1.15 var(--serif);letter-spacing:-.03em;background:linear-gradient(180deg,#fff 20%,rgba(255,255,255,.45));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hello p{color:var(--mut);margin-top:10px;font:12px var(--mono)}
+.hello button{margin-top:20px;background:#fff;border:0;border-radius:999px;padding:10px 22px;color:#000;font-weight:500;cursor:pointer}
+.u{align-self:flex-start;border-radius:20px;padding:10px 16px;white-space:pre-wrap;max-width:100%;box-shadow:inset 0 1px 0 rgba(255,255,255,.17)}
+.a{font:15.5px/1.65 var(--serif);letter-spacing:-.005em}
+.a p+p,.a ul,.a ol,.a pre,.a h3,.a h4,.a h5{margin-top:.8em}
+.a ul,.a ol{padding-left:1.4em}
+.a code{font:12.5px var(--mono);background:var(--side);padding:1px 6px;border-radius:6px}
+.a pre{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:12px;overflow:auto}
+.a pre code{background:none;padding:0}
+.tool{font-size:13px;color:var(--mut)}
+.tool summary{cursor:pointer;list-style:none;display:flex;gap:8px;align-items:center}
+.tool summary::-webkit-details-marker{display:none}
+.tool .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:12px var(--mono)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mut);flex:none}
+.dot.run{background:var(--acc);box-shadow:0 0 8px var(--acc);animation:pulse 1s infinite}.dot.ok{background:#f5f5f7}.dot.err{background:var(--acc)}
+@keyframes pulse{50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.dot.run{animation:none}}
+.out{margin-top:6px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:10px 12px;max-height:240px;overflow:auto;font:12px var(--mono);white-space:pre-wrap;color:var(--text)}
+.approval{border-radius:22px;padding:14px 16px;border-color:rgba(255,255,255,.26)}
+.approval b{font-weight:500}
+.approval pre{margin-top:8px;max-height:220px;overflow:auto;background:rgba(0,0,0,.45);border-radius:12px;padding:8px 10px;font:12px var(--mono);white-space:pre-wrap}
+.approval .del{color:var(--bad);background:rgba(255,59,48,.12)}.approval .add{color:#e8e8ea;background:rgba(255,255,255,.07)}
+.btns{display:flex;gap:8px;margin-top:10px}
+.btns button{border-radius:999px;padding:6px 16px;cursor:pointer;box-shadow:none}
+.btns .go{background:#fff;border-color:#fff;color:#000;font-weight:500}
+.err-msg{color:var(--bad)}.note{color:var(--mut)}
+.chart{border-radius:22px;padding:14px 16px;margin-top:.8em;font-family:var(--sans)}
+.ct{font-size:12.5px;color:var(--mut);margin-bottom:6px}
+.chart svg{display:block;width:100%;height:auto}
+svg .ax{font:10px var(--mono);fill:var(--mut)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:6px}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.dn{display:flex;align-items:center;gap:16px}.dn .legend{flex-direction:column;gap:6px;margin:0}
+#insights{width:340px;flex:none;border-radius:26px;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+#insights h2{font:500 20px var(--serif);letter-spacing:-.02em}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{border-radius:18px;padding:10px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
+.stat b{display:block;font:500 20px var(--serif)}.stat span{font-size:12px;color:var(--mut)}
+.fb{font:12px var(--mono);margin-top:8px}.fb div{display:flex;justify-content:space-between}
+.meter{height:6px;border-radius:3px;background:rgba(255,255,255,.1);margin-top:3px}.meter i{display:block;height:100%;border-radius:3px;background:#fff}
+#insights .chart{margin-top:0;box-shadow:none}
+.fine{font-size:12px;color:var(--mut)}
+#composerWrap{padding:0 0 4px}
+#composer{max-width:740px;margin:0 auto;border-radius:28px;padding:12px 16px 10px}
+#composer:focus-within{border-color:rgba(255,255,255,.34)}
+#input{width:100%;background:none;border:0;outline:0;resize:none;max-height:200px;line-height:1.5;display:block}
+#input::placeholder{color:var(--mut)}
+.bar{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+#mode{background:none;border:0;color:var(--mut);cursor:pointer;font:12px var(--mono)}
+#mode option{background:#111;color:var(--text)}
+#send{width:34px;height:34px;border-radius:50%;border:0;background:#fff;color:#000;cursor:pointer;display:grid;place-items:center;box-shadow:0 0 18px rgba(255,255,255,.25)}
+#send svg{width:16px;height:16px;stroke-width:2.2}
+#editorPane{width:50%;flex:none;border-radius:26px;overflow:hidden}
+#editorFrame{width:100%;height:100%;border:0;background:#000}
+dialog{margin:auto;color:var(--text);border-radius:28px;padding:24px;width:440px;background:linear-gradient(135deg,rgba(255,255,255,.11),rgba(255,255,255,.04)),rgba(8,8,10,.78)}
+dialog::backdrop{background:rgba(0,0,0,.65)}
+dialog h2{font:500 22px var(--serif);letter-spacing:-.02em;margin-bottom:14px}
+dialog label{display:block;margin-top:12px;color:var(--mut);font-size:13px}
+dialog input{width:100%;margin-top:4px;background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:999px;padding:9px 14px;outline:0;font-family:var(--mono);font-size:12.5px}
+dialog input:focus{border-color:rgba(255,255,255,.4)}
+dialog .btns{justify-content:flex-end;margin-top:18px}
+
+/* ===== Codex-style layout ===== */
+#app{display:flex;flex-direction:column;padding:0;gap:0;height:100%}
+#titlebar{height:46px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 14px;-webkit-app-region:drag}
+html.electron #titlebar{padding-left:84px}
+.tb{display:flex;align-items:center;gap:4px}
+.ib{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:none;border:0;color:var(--mut);cursor:pointer}
+.ib:hover{background:rgba(255,255,255,.08);color:var(--text)}
+.ib.on{background:rgba(255,255,255,.14);color:var(--text)}
+.ib:disabled{opacity:.3;cursor:default;background:none}
+.ib svg{width:18px;height:18px}
+#pill{border:1px solid rgba(255,59,48,.6);color:var(--acc);border-radius:999px;padding:4px 12px;font-size:12px;background:none;cursor:pointer;margin-right:6px}
+#body{flex:1;min-height:0;display:flex}
+#rail{width:58px;flex:none;display:flex;flex-direction:column;align-items:center;gap:8px;padding:6px 0 14px}
+#rail .ib{width:38px;height:38px;border-radius:12px}
+#rail .sep{width:22px;height:1px;background:var(--line);margin:4px 0}
+#rail .grow{flex:1}
+.avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#76767b,#2a2a2d);display:grid;place-items:center;font:600 11px var(--sans);color:#fff;border:1px solid var(--line);cursor:pointer}
+.upd{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.14);border:1px solid var(--line);display:grid;place-items:center;color:#fff;cursor:pointer}
+.upd svg{width:15px;height:15px}
+#shell{flex:1;min-width:0;display:flex;border-radius:22px 0 0 0;border-top:1px solid var(--line);border-left:1px solid var(--line);background:rgba(255,255,255,.03);backdrop-filter:blur(28px) saturate(170%);-webkit-backdrop-filter:blur(28px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,.12);overflow:hidden}
+#side{width:248px;flex:none;border-radius:0;border:0;border-right:1px solid var(--line);background:rgba(255,255,255,.025);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;padding:14px 10px 10px;display:flex;flex-direction:column;overflow:hidden}
+#side.collapsed{display:none}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:0 4px 10px 6px}
+.ttl{display:flex;align-items:center;gap:8px;font:600 17px var(--serif);letter-spacing:-.02em;cursor:pointer;background:none;border:0;color:var(--text)}
+.ttl svg.pm{width:22px;height:22px;color:#fff;fill:currentColor;filter:drop-shadow(0 0 8px rgba(255,255,255,.3))}
+.ttl svg.ic{width:14px;height:14px;color:var(--mut)}
+.sc{flex:1;overflow:auto;margin:0 -4px;padding:0 4px}
+.si{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:12px;color:var(--text);cursor:pointer;white-space:nowrap}
+.si span{overflow:hidden;text-overflow:ellipsis}
+.si:hover{background:rgba(255,255,255,.06)}
+.si.act{background:rgba(255,255,255,.1)}
+.si.th{padding-left:38px;color:rgba(255,255,255,.8)}
+.si.rc{color:rgba(255,255,255,.8)}
+.sl{padding:16px 10px 6px;color:var(--mut);font-size:13px}
+#q{width:100%;margin:0 0 6px;background:rgba(0,0,0,.4);border:1px solid var(--line);border-radius:999px;padding:7px 14px;outline:0;font-size:13px}
+#main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
+#chatWrap{flex:1;overflow:auto;display:flex;flex-direction:column}
+#chat{flex:1;width:100%;max-width:760px;align-self:center;padding:24px 24px 12px}
+.hello{margin:auto 0;text-align:center}
+.hello h1{font-weight:400;font-size:36px}
+.pn{border-bottom:1.5px dotted rgba(255,255,255,.55);cursor:pointer}
+#composerWrap{padding:0 28px 22px}
+#stack{max-width:900px;margin:0 auto}
+#chip{display:flex;align-items:center;gap:8px;width:calc(100% - 28px);margin:0 14px -14px;padding:9px 16px 22px;border-radius:20px 20px 0 0;background:rgba(255,255,255,.05);border:1px solid var(--line);border-bottom:0;color:rgba(255,255,255,.88);cursor:pointer;font-size:14px}
+#composer{position:relative;max-width:none;border-radius:26px;padding:16px 18px 12px}
+#input{font-size:15px}
+.crow{display:flex;align-items:center;gap:6px;margin-top:12px}
+.crow .grow{flex:1}
+.cp{display:flex;align-items:center;gap:7px;background:none;border:0;border-radius:999px;padding:6px 10px;color:var(--mut);cursor:pointer;font-size:14px}
+.cp:hover{background:rgba(255,255,255,.08);color:var(--text)}
+.cp b{font-weight:500;color:var(--text)}
+.cp svg{width:15px;height:15px}
+#insights,#editorPane{border-radius:0;border:0;border-left:1px solid var(--line);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(255,255,255,.02)}
+.menu{position:fixed;z-index:50;min-width:230px;padding:6px;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.05)),rgba(12,12,14,.84);backdrop-filter:blur(30px) saturate(170%);-webkit-backdrop-filter:blur(30px) saturate(170%);border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 16px 44px rgba(0,0,0,.7)}
+.mi{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 12px;border-radius:12px;cursor:pointer;font-size:14px}
+.mi:hover{background:rgba(255,255,255,.09)}
+.mi small{display:block;color:var(--mut);font-size:12px}
+.mi svg{width:15px;height:15px}
+.toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);z-index:60;padding:8px 18px;border-radius:999px;background:rgba(20,20,22,.85);border:1px solid var(--line);backdrop-filter:blur(20px);font-size:13px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="proton" viewBox="0 0 1254 1254"><g transform="translate(627 627) scale(1.55) translate(-627 -627)" fill="currentColor"><path d="M798.930115,483.084717 C815.831299,492.939301 832.676819,492.989502 850.481323,484.166718 C854.940186,494.086945 859.863220,503.692566 863.649658,513.727051 C873.397278,539.558838 879.244446,566.265198 880.477051,593.947937 C880.682617,598.565063 879.511353,601.493774 875.875916,604.474182 C833.022034,639.607666 787.213806,670.410950 739.375366,698.277161 C692.970825,725.308105 644.913513,749.021790 595.283936,769.494324 C558.370361,784.721558 520.792419,798.116638 482.228851,808.635803 C478.790619,809.573669 476.293243,809.426514 473.282410,806.925659 C424.227844,766.179199 393.281586,714.517212 382.398071,651.815552 C370.653778,584.154907 382.761292,520.153015 420.382416,462.586304 C464.215210,395.514587 527.044067,357.073730 606.956238,348.985382 C673.484924,342.251617 733.143250,360.738373 785.194702,403.030853 C785.831116,403.547943 786.424805,404.117645 787.372498,404.959503 C776.250122,418.354645 772.059204,433.593719 776.040527,450.569000 C779.246094,464.236755 786.682861,475.203918 798.930115,483.084717"/><path d="M680.898682,752.807129 C721.890747,732.200867 761.664917,710.137817 799.446777,684.772583 C825.412415,667.340332 850.419861,648.480896 875.852356,630.254883 C877.138916,629.332825 878.394653,628.367615 880.258972,627.879150 C871.140503,717.049561 831.931580,788.308167 752.143005,832.202148 C667.414307,878.813782 582.336548,874.328796 499.082825,825.810181 C561.731689,806.560120 622.121399,782.194763 680.898682,752.807129"/><path d="M450.432922,813.771729 C453.972565,817.368591 449.917389,816.643372 448.902863,816.841553 C438.614990,818.851746 428.323334,820.877930 417.973602,822.529297 C390.412628,826.926819 362.718323,829.071655 334.859192,825.963501 C321.400421,824.462036 308.250549,821.633850 296.609711,814.092896 C281.689728,804.427673 276.061798,791.100952 279.736389,773.790100 C283.410492,756.481934 292.239197,741.594421 302.174652,727.343567 C319.328522,702.739136 340.184540,681.486389 362.616150,661.713745 C362.834900,661.520996 363.208405,661.503845 362.911926,661.601379 C367.611267,676.608765 371.682770,691.833618 377.122833,706.552612 C391.427429,745.255737 413.926941,778.703735 443.696167,807.266846 C445.859467,809.342407 448.001587,811.439941 450.432922,813.771729"/><path d="M912.229675,572.230469 C908.210938,575.946106 904.455078,579.424438 900.273682,583.296936 C898.596069,572.505066 897.235291,562.371582 895.417236,552.320740 C890.466064,524.947937 881.083435,499.123352 867.555847,474.830994 C866.082947,472.186005 865.906311,470.399933 867.739136,467.763336 C874.822021,457.573944 877.369568,446.018127 876.878357,433.279297 C902.980591,430.144287 928.906921,427.099152 954.598511,435.070984 C976.731201,441.938568 985.083862,458.415802 978.269531,481.671906 C973.417297,498.231415 964.682922,512.928040 953.899536,526.036316 C940.813171,541.944214 926.356384,556.724792 912.229675,572.230469"/><path d="M845.742615,462.797302 C831.351746,474.068848 812.650024,472.281555 801.820679,458.863525 C790.884766,445.313538 792.779480,425.639221 806.084656,414.588074 C818.978821,403.878387 838.383850,405.683594 849.559387,418.632355 C860.685730,431.524200 859.248230,449.318695 845.742615,462.797302"/></g></symbol></svg>
+<div id="app">
+  <div id="titlebar">
+    <div class="tb">
+      <button class="ib" id="back" disabled aria-label="Back"><i data-ic="back"></i></button>
+      <button class="ib" id="fwd" disabled aria-label="Forward"><i data-ic="forward"></i></button>
+      <button class="ib" id="toggleSide" aria-label="Toggle sidebar"><i data-ic="panel"></i></button>
+    </div>
+    <div class="tb">
+      <button id="pill" hidden>Add API key</button>
+      <button class="ib" id="insBtn" aria-label="Insights" title="Insights"><i data-ic="chart"></i></button>
+      <button class="ib" id="editorBtn" aria-label="Code editor" title="Code editor"><i data-ic="code"></i></button>
+      <button class="ib" id="newWin" aria-label="New window" title="New window"><i data-ic="newwin"></i></button>
+    </div>
+  </div>
+  <div id="body">
+    <nav id="rail" aria-label="Sections"></nav>
+    <div id="shell">
+      <aside id="side">
+        <div class="sh">
+          <button class="ttl" id="appMenu"><svg class="pm" viewBox="0 0 1254 1254"><use href="#proton"/></svg>Proton<i data-ic="chevD"></i></button>
+          <div class="tb"><button class="ib" id="bell" aria-label="Notifications"><i data-ic="bell"></i></button><button class="ib" id="searchBtn" aria-label="Search"><i data-ic="search"></i></button></div>
+        </div>
+        <input id="q" placeholder="Search chats" hidden>
+        <div class="sc" id="sideList"></div>
+      </aside>
+      <main id="main">
+        <div id="chatWrap"><div id="chat"></div></div>
+        <div id="composerWrap"><div id="stack">
+          <div id="chip"><i data-ic="folder"></i><span id="chipName">Choose project</span></div>
+          <div id="composer">
+            <textarea id="input" rows="2" placeholder="Do anything"></textarea>
+            <div class="crow">
+              <button class="ib" id="attach" aria-label="Attach"><i data-ic="plus"></i></button>
+              <button class="cp" id="modePill"><i data-ic="shield"></i><span id="modeLbl">Ask first</span></button>
+              <span class="grow"></span>
+              <button class="cp" id="modelPill"><b id="modelLbl">Sonnet 5.5</b><i data-ic="chevD"></i></button>
+              <button class="ib" id="mic" aria-label="Voice input"><i data-ic="mic"></i></button>
+              <button id="send" aria-label="Send"></button>
+            </div>
+          </div>
+        </div></div>
+      </main>
+      <aside id="insights" hidden></aside>
+      <section id="editorPane" hidden><iframe id="editorFrame" title="Code-OSS editor"></iframe></section>
+    </div>
+  </div>
+</div>
+
+<dialog id="settings">
+  <h2>Settings</h2>
+  <label>Anthropic API key<input id="apiKey" type="password" autocomplete="off" placeholder="sk-ant-..."></label>
+  <label>Model<input id="model"></label>
+  <label>Code-OSS server path<input id="editorPath" placeholder="/path/to/openvscode-server/bin/openvscode-server"></label>
+  <div class="btns"><button id="cancelSettings">Cancel</button><button class="go" id="saveSettings">Save</button></div>
+</dialog>
+
+<script>
+const IS_STUB = !window.proton;
+if (IS_STUB) {
+  window.proton = { getSettings: async () => ({ model: 'claude-sonnet-5-5', workspace: null, editorPath: '', mode: 'ask', hasKey: false }),
+    setSettings: async () => true, pickWorkspace: async () => '/Users/you/new-project', list: async () => [], send: async () => true,
+    stop: async () => true, reset: async () => true, approve() {}, startEditor: async () => { throw new Error('The editor runs in the desktop app.'); },
+    stopEditor: async () => true, onEvent() {} };
+}
+const $ = (s) => document.querySelector(s);
+const chat = $('#chat'), input = $('#input'), sendBtn = $('#send');
+let busy = false, cur = null, S = {};
+const tools = new Map();
+const PAL = ['#ffffff', '#8e8e93', '#ff3b30', '#5a5a5f', '#c7c7cc'];
+const P = {
+  plus: 'M8 3v10M3 8h10', chev: 'M6 4l4 4-4 4', chevD: 'M4 6l4 4 4-4', check: 'M3.5 8.5l3 3 6-7', x: 'M4 4l8 8M12 4l-8 8',
+  folder: 'M2 12.5V4.5A1.5 1.5 0 0 1 3.5 3H6l1.5 1.5H12A1.5 1.5 0 0 1 13.5 6v1.5M2 12.5l1.5-4.2a1 1 0 0 1 .95-.65H14a.5.5 0 0 1 .47.67L13.1 12a1 1 0 0 1-.95.5z',
+  file: 'M4 2h5l3 3v8.5a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-11A.5.5 0 0 1 4 2zM9 2v3h3',
+  code: 'M6 4L2 8l4 4M10 4l4 4-4 4', chart: 'M3 13V8M8 13V3M13 13V6', send: 'M8 13V3M4 7l4-4 4 4', stop: 'M4.5 4.5h7v7h-7z',
+  terminal: 'M3 4l4 4-4 4M8 12h5', search: 'M7 11.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zM10.5 10.5L14 14',
+  pencil: 'M3 13l.8-3.2 7-7 2.4 2.4-7 7z',
+  home: 'M2.5 7.5L8 3l5.5 4.5V13a.5.5 0 0 1-.5.5h-3V10H6v3.5H3a.5.5 0 0 1-.5-.5z',
+  layers: 'M8 2.5l5.5 3L8 8.5l-5.5-3zM2.5 8.2L8 11.2l5.5-3M2.5 10.8L8 13.8l5.5-3',
+  clock: 'M8 2.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11zM8 5v3.2l2 1.3',
+  books: 'M2.5 3h2.5v10H2.5zM6.5 3H9v10H6.5zM10.3 3.8l2.3-.6 2.3 9.4-2.3.6z',
+  at: 'M8 10.2a2.2 2.2 0 1 0 0-4.4 2.2 2.2 0 0 0 0 4.4zM10.2 5.8v3.1c0 1 .8 1.6 1.6 1.6 1 0 1.7-1 1.7-2.5A5.5 5.5 0 1 0 8 13.5c1.2 0 2.2-.4 3-1',
+  more: 'M3.2 8h1M7.5 8h1M11.8 8h1',
+  branch: 'M4.5 2.5v8M4.5 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM11.5 5.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM11.5 5.5V7a2.5 2.5 0 0 1-2.5 2.5H7a2.5 2.5 0 0 0-2.5 2.5',
+  download: 'M8 2.5v8M4.8 7.6L8 10.8l3.2-3.2M3 13h10',
+  bell: 'M4 11V7.5a4 4 0 0 1 8 0V11l1 1.5H3zM6.7 14a1.4 1.4 0 0 0 2.6 0',
+  compose: 'M8.5 3H4a1.5 1.5 0 0 0-1.5 1.5v7.5A1.5 1.5 0 0 0 4 13.5h7.5A1.5 1.5 0 0 0 13 12V7.5M6.5 9.5l.4-2.1 5.1-5.1 1.7 1.7-5.1 5.1z',
+  back: 'M13 8H3M7 4L3 8l4 4', forward: 'M3 8h10M9 4l4 4-4 4',
+  panel: 'M3.5 3h9A1.5 1.5 0 0 1 14 4.5v7a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 11.5v-7A1.5 1.5 0 0 1 3.5 3zM6 3v10',
+  mic: 'M8 2.5a2 2 0 0 0-2 2V8a2 2 0 0 0 4 0V4.5a2 2 0 0 0-2-2zM4 7.5a4 4 0 0 0 8 0M8 11.5V13.5',
+  shield: 'M8 2l5 2v4c0 3-2.2 4.8-5 6-2.8-1.2-5-3-5-6V4zM5.8 8l1.6 1.6L10.4 6.6',
+  newwin: 'M3 3.5h10v9H3zM8 6v4M6 8h4',
+};
+const ic = (n, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 16 16"><path d="${P[n]}"/></svg>`;
+const logo = (c = '') => `<svg class="${c}" viewBox="0 0 1254 1254"><use href="#proton"/></svg>`;
+const TOOL_IC = { list_dir: 'folder', read_file: 'file', write_file: 'pencil', edit_file: 'pencil', search: 'search', run_command: 'terminal' };
+function hydrate(root = document) { root.querySelectorAll('i[data-ic]').forEach((el) => { el.outerHTML = ic(el.dataset.ic); }); }
+const MODELS = [
+  { id: 'claude-opus-5-5', name: 'Opus 5.5', sub: 'Most capable' },
+  { id: 'claude-sonnet-5-5', name: 'Sonnet 5.5', sub: 'Balanced' },
+  { id: 'claude-haiku-5-5', name: 'Haiku 5.5', sub: 'Fastest' },
+];
+const MODES = [
+  { id: 'ask', label: 'Ask first', sub: 'Confirm every edit' },
+  { id: 'auto', label: 'Approve for me', sub: 'Edits apply on their own. Commands still ask' },
+];
+/* sample projects until the logic layer stores real ones */
+let PROJECTS = [
+  { name: 'proton 2', threads: ['Identify vector asset', 'Launch app'] },
+  { name: 'xide', threads: ['Redesign the interface like Codex'] },
+  { name: 'icons for proton', threads: ['Create immersive study resource UI', 'Add grouped Material icons'] },
+];
+const EXTRA_RECENTS = ['Handle PDF links in fetch engine', 'Fix page and scroll lag', 'Match browser new tab UI', 'Fix movie and anime search'];
+let active = 0, q = '';
+/* ---- charts (pure SVG) ---- */
+function axes(c, W, H, p, max) {
+  let g = '';
+  for (let k = 0; k <= 3; k++) {
+    const y = p.t + (H - p.t - p.b) * (1 - k / 3);
+    g += `<line x1="${p.l}" x2="${W - p.r}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${p.l - 6}" y="${y + 3}" text-anchor="end" class="ax">${Math.round(max * k / 3)}</text>`;
+  }
+  return g;
+}
+function barSvg(c) {
+  const W = 320, H = 150, p = { l: 28, r: 6, t: 8, b: 22 }, iw = W - p.l - p.r, ih = H - p.t - p.b;
+  const max = Math.max(1, ...c.series.flatMap((s) => s.data)), n = c.labels.length, slot = iw / n, k = c.series.length, bw = Math.min(26, slot * 0.7 / k);
+  let g = axes(c, W, H, p, max);
+  c.series.forEach((s, si) => s.data.forEach((v, i) => {
+    const h = ih * v / max, x = p.l + slot * i + (slot - bw * k) / 2 + bw * si;
+    g += `<rect x="${x}" y="${p.t + ih - h}" width="${bw - 2}" height="${h}" rx="3" fill="${PAL[si % PAL.length]}"/>`;
+  }));
+  c.labels.forEach((l, i) => { g += `<text x="${p.l + slot * (i + .5)}" y="${H - 6}" text-anchor="middle" class="ax">${esc(l)}</text>`; });
+  return `<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+}
+function lineSvg(c) {
+  const W = 320, H = 150, p = { l: 28, r: 8, t: 8, b: 22 }, iw = W - p.l - p.r, ih = H - p.t - p.b;
+  const max = Math.max(1, ...c.series.flatMap((s) => s.data)), n = c.labels.length, base = p.t + ih;
+  const X = (i) => p.l + iw * i / Math.max(1, n - 1), Y = (v) => p.t + ih - ih * v / max;
+  let g = axes(c, W, H, p, max);
+  c.series.forEach((s, si) => {
+    const col = PAL[si % PAL.length], pts = s.data.map((v, i) => `${X(i)},${Y(v)}`);
+    g += `<path d="M${pts.join('L')}L${X(n - 1)},${base}L${X(0)},${base}Z" fill="${col}" opacity=".14"/><path d="M${pts.join('L')}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>`;
+    s.data.forEach((v, i) => { g += `<circle cx="${X(i)}" cy="${Y(v)}" r="2.8" fill="${col}"/>`; });
+  });
+  c.labels.forEach((l, i) => { g += `<text x="${X(i)}" y="${H - 6}" text-anchor="middle" class="ax">${esc(l)}</text>`; });
+  return `<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+}
+function donutHtml(c) {
+  const vals = c.series[0].data, tot = vals.reduce((a, b) => a + b, 0) || 1, R = 40, C = 2 * Math.PI * R;
+  let off = 0;
+  const segs = vals.map((v, i) => {
+    const l = C * v / tot;
+    const s = `<circle cx="60" cy="60" r="${R}" fill="none" stroke="${PAL[i % PAL.length]}" stroke-width="16" stroke-dasharray="${Math.max(0, l - 1.5)} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 60 60)"/>`;
+    off += l; return s;
+  }).join('');
+  const leg = c.labels.map((l, i) => `<span><i style="background:${PAL[i % PAL.length]}"></i>${esc(l)} ${vals[i]}</span>`).join('');
+  return `<div class="dn"><svg viewBox="0 0 120 120" style="width:120px;flex:none">${segs}<text x="60" y="65" text-anchor="middle" style="font:500 17px var(--serif);fill:var(--text)">${tot}</text></svg><div class="legend">${leg}</div></div>`;
+}
+function chartHtml(c) {
+  let body, leg = '';
+  if (c.type === 'donut') body = donutHtml(c);
+  else {
+    body = c.type === 'line' ? lineSvg(c) : barSvg(c);
+    if (c.series.length > 1) leg = '<div class="legend">' + c.series.map((s, i) => `<span><i style="background:${PAL[i % PAL.length]}"></i>${esc(s.name || '')}</span>`).join('') + '</div>';
+  }
+  return `<div class="chart">${c.title ? `<div class="ct">${esc(c.title)}</div>` : ''}${body}${leg}</div>`;
+}
+
+/* ---- markdown (with ```chart blocks) ---- */
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const inl = (s) => s.replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+function md(src) {
+  return src.split('```').map((p, i) => {
+    if (i % 2) {
+      const nl = p.indexOf('\n'), lang = nl >= 0 ? p.slice(0, nl).trim() : p.trim(), body = nl >= 0 ? p.slice(nl + 1) : '';
+      if (lang === 'chart') { try { return chartHtml(JSON.parse(body)); } catch { return '<p class="note">Drawing chart…</p>'; } }
+      return `<pre><code>${esc(body)}</code></pre>`;
+    }
+    return esc(p).split(/\n{2,}/).map((par) => {
+      if (!par.trim()) return '';
+      const L = par.split('\n');
+      if (L.every((l) => /^\s*[-*] /.test(l))) return '<ul>' + L.map((l) => `<li>${inl(l.replace(/^\s*[-*] /, ''))}</li>`).join('') + '</ul>';
+      if (L.every((l) => /^\s*\d+\. /.test(l))) return '<ol>' + L.map((l) => `<li>${inl(l.replace(/^\s*\d+\. /, ''))}</li>`).join('') + '</ol>';
+      const h = par.match(/^(#{1,3}) (.*)/);
+      if (h) return `<h${h[1].length + 2}>${inl(h[2])}</h${h[1].length + 2}>`;
+      return '<p>' + inl(par).replace(/\n/g, '<br>') + '</p>';
+    }).join('');
+  }).join('');
+}
+const scroll = () => { const w = $('#chatWrap'); w.scrollTop = w.scrollHeight; };
+const base = (p) => (p || '').split('/').filter(Boolean).pop() || '';
+const clean = (e) => e.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, '');
+function add(cls, text) { const d = document.createElement('div'); d.className = cls; d.textContent = text; chat.append(d); scroll(); return d; }
+
+/* ---- toast + menus ---- */
+let tt;
+function toast(m) {
+  let t = $('#toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; document.body.append(t); }
+  t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => { t.hidden = true; }, 2200);
+}
+function closeMenu() { const m = $('#menu'); if (m) m.remove(); document.removeEventListener('click', closeMenu); }
+function menu(anchor, items, pickFn, above = true) {
+  closeMenu();
+  const m = document.createElement('div'); m.className = 'menu'; m.id = 'menu';
+  m.innerHTML = items.map((it, i) => `<div class="mi" data-i="${i}"><div>${esc(it.label)}${it.sub ? `<small>${esc(it.sub)}</small>` : ''}</div>${it.on ? ic('check') : ''}</div>`).join('');
+  document.body.append(m);
+  const r = anchor.getBoundingClientRect();
+  m.style.left = Math.max(8, Math.min(r.left, innerWidth - m.offsetWidth - 8)) + 'px';
+  m.style.top = (above ? Math.max(8, r.top - m.offsetHeight - 8) : r.bottom + 8) + 'px';
+  m.onclick = (e) => { const mi = e.target.closest('.mi'); if (mi) { pickFn(items[+mi.dataset.i]); closeMenu(); } };
+  setTimeout(() => document.addEventListener('click', closeMenu), 0);
+}
+function projMenu(anchor, above) {
+  menu(anchor, [...PROJECTS.map((p, i) => ({ label: p.name, on: i === active, i })), { label: 'Open folder…', open: true }], (it) => {
+    if (it.open) return pick();
+    active = it.i; renderSide(); if (chat.querySelector('.hello')) empty();
+  }, above);
+}
+
+/* ---- sidebar ---- */
+function renderSide() {
+  const f = q.toLowerCase(), has = (t) => t.toLowerCase().includes(f);
+  let h = `<div class="si" id="newChat">${ic('compose')}<span>New chat</span></div><div class="sl">Projects</div>`;
+  PROJECTS.forEach((p, i) => {
+    h += `<div class="si${i === active ? ' act' : ''}" data-p="${i}">${ic('folder')}<span>${esc(p.name)}</span></div>`;
+    p.threads.filter(has).forEach((t) => { h += `<div class="si th" data-t="${esc(t)}"><span>${esc(t)}</span></div>`; });
+  });
+  const rec = [...PROJECTS.flatMap((p) => p.threads), ...EXTRA_RECENTS].filter(has);
+  if (rec.length) h += '<div class="sl">Recents</div>' + rec.map((t) => `<div class="si rc" data-t="${esc(t)}"><span>${esc(t)}</span></div>`).join('');
+  $('#sideList').innerHTML = h;
+}
+$('#sideList').onclick = (e) => {
+  const el = e.target.closest('.si'); if (!el) return;
+  if (el.id === 'newChat') return newChat();
+  if (el.dataset.p !== undefined) { active = +el.dataset.p; renderSide(); if (chat.querySelector('.hello')) empty(); return; }
+  if (el.dataset.t !== undefined) openThread(el.dataset.t);
+};
+function openThread(t) {
+  stopRun(); setBusy(false); chat.innerHTML = '';
+  add('u', t); add('note', 'Saved threads open here once the logic layer is connected.');
+}
+async function newChat() { stopRun(); await proton.reset(); setBusy(false); empty(); }
+function addProject(w) {
+  const n = base(w); let i = PROJECTS.findIndex((p) => p.path === w || p.name === n);
+  if (i < 0) { PROJECTS.unshift({ name: n, path: w, threads: [] }); i = 0; }
+  active = i;
+}
+async function pick() {
+  const w = await proton.pickWorkspace();
+  if (!w) return;
+  S.workspace = w; hideEditor(); addProject(w); setBusy(false); renderSide(); empty();
+}
+function empty() {
+  chat.innerHTML = '';
+  const name = PROJECTS[active] && PROJECTS[active].name;
+  const d = document.createElement('div'); d.className = 'hello';
+  d.innerHTML = logo('logo') + `<h1>What should we work on${name ? ' in <span class="pn" id="pn">' + esc(name) + '</span>' : ''}?</h1>`;
+  chat.append(d);
+  const pn = $('#pn'); if (pn) pn.onclick = () => projMenu(pn, false);
+  $('#chipName').textContent = name || 'Choose project';
+}
+function renderTop() {
+  $('#pill').hidden = !!S.hasKey;
+  $('#modelLbl').textContent = (MODELS.find((m) => m.id === S.model) || { name: S.model || 'Model' }).name;
+  $('#modeLbl').textContent = (MODES.find((m) => m.id === S.mode) || MODES[0]).label;
+}
+function renderWs() { renderTop(); }
+
+/* ---- rail + titlebar ---- */
+(function rail() {
+  const r = $('#rail');
+  const items = [['home', 'Home', 1], ['layers', 'Agents'], ['clock', 'History'], ['books', 'Library'], ['at', 'Connectors'], ['more', 'More']];
+  r.innerHTML = items.map(([i, t, on]) => `<button class="ib${on ? ' on' : ''}" data-r="${t}" title="${t}" aria-label="${t}">${ic(i)}</button>`).join('')
+    + `<div class="sep"></div><button class="ib" data-r="Source control" title="Source control" aria-label="Source control">${ic('branch')}</button><div class="grow"></div>`
+    + `<div class="upd" id="upd" title="Update">${ic('download')}</div><div class="avatar" id="settingsBtn" title="Settings">NB</div>`;
+  r.onclick = (e) => { const b = e.target.closest('[data-r]'); if (b && b.dataset.r !== 'Home') toast(b.dataset.r + ' is coming with the logic layer'); };
+  $('#upd').onclick = () => toast('Proton is up to date');
+})();
+$('#toggleSide').onclick = () => $('#side').classList.toggle('collapsed');
+$('#bell').onclick = () => toast('No notifications');
+$('#newWin').onclick = () => toast('Multiple windows come later');
+$('#mic').onclick = () => toast('Voice input comes later');
+$('#attach').onclick = () => toast('Attachments come with the logic layer');
+$('#searchBtn').onclick = () => { const i = $('#q'); i.hidden = !i.hidden; if (!i.hidden) i.focus(); else { q = ''; i.value = ''; renderSide(); } };
+$('#q').oninput = (e) => { q = e.target.value; renderSide(); };
+$('#chip').onclick = () => projMenu($('#chip'), true);
+$('#appMenu').onclick = () => menu($('#appMenu'), [{ label: 'Open folder…', a: 'open' }, { label: 'Settings', a: 'set' }], (it) => (it.a === 'open' ? pick() : openSettings()), false);
+$('#modePill').onclick = () => menu($('#modePill'), MODES.map((m) => ({ ...m, on: m.id === (S.mode || 'ask') })), (it) => { S.mode = it.id; proton.setSettings({ mode: it.id }); renderTop(); });
+$('#modelPill').onclick = () => menu($('#modelPill'), MODELS.map((m) => ({ label: m.name, sub: m.sub, id: m.id, on: m.id === S.model })), (it) => { S.model = it.id; proton.setSettings({ model: it.id }); renderTop(); });
+
+/* ---- tool + approval UI ---- */
+function label(n, i) {
+  switch (n) {
+    case 'list_dir': return 'Listed ' + (i.path || '.');
+    case 'read_file': return 'Read ' + i.path;
+    case 'write_file': return 'Write ' + i.path;
+    case 'edit_file': return 'Edit ' + i.path;
+    case 'search': return 'Searched ' + i.pattern;
+    case 'run_command': return 'Ran ' + i.command;
+  }
+  return n;
+}
+function preview(n, i) {
+  if (n === 'edit_file') return `<pre class="del">${esc(i.old_str)}</pre><pre class="add">${esc(i.new_str)}</pre>`;
+  if (n === 'write_file') return `<pre>${esc(String(i.content).split('\n').slice(0, 30).join('\n'))}</pre>`;
+  return `<pre>${esc(i.command)}</pre>`;
+}
+let demoRun = false, demoCancel = false, demoWait = null;
+function approve(id, ok) { if (demoWait) { const w = demoWait; demoWait = null; w(ok); } else proton.approve(id, ok); }
+
+function onEvent(ev) {
+  switch (ev.type) {
+    case 'text_start': cur = document.createElement('div'); cur.className = 'a'; cur._raw = ''; chat.append(cur); break;
+    case 'text': if (cur) { cur._raw += ev.text; cur.innerHTML = md(cur._raw); scroll(); } break;
+    case 'tool_start': {
+      cur = null;
+      const d = document.createElement('details'); d.className = 'tool';
+      d.innerHTML = `<summary><span class="dot run"></span>${ic(TOOL_IC[ev.name] || 'file')}<span class="t"></span></summary><div class="out" hidden></div>`;
+      d.querySelector('.t').textContent = label(ev.name, ev.input);
+      chat.append(d); tools.set(ev.id, d); scroll(); break;
+    }
+    case 'approval': {
+      const c = document.createElement('div'); c.className = 'approval';
+      const title = ev.name === 'run_command' ? 'Run this command?' : 'Apply this change to ' + esc(ev.input.path) + '?';
+      c.innerHTML = `<b>${title}</b>${preview(ev.name, ev.input)}<div class="btns"><button class="go">Allow</button><button class="no">Deny</button></div>`;
+      c.querySelector('.go').onclick = () => { approve(ev.id, true); c.remove(); };
+      c.querySelector('.no').onclick = () => { approve(ev.id, false); c.remove(); };
+      chat.append(c); scroll(); break;
+    }
+    case 'tool_result': {
+      const d = tools.get(ev.id); if (!d) break;
+      d.querySelector('.dot').className = 'dot ' + (ev.error ? 'err' : 'ok');
+      const o = d.querySelector('.out'); o.textContent = ev.output; o.hidden = false; break;
+    }
+    case 'done': setBusy(false); cur = null; if (ev.stopped) add('note', 'Stopped.'); renderSide(); break;
+    case 'error': setBusy(false); cur = null; add('err-msg', ev.message); break;
+  }
+}
+proton.onEvent(onEvent);
+
+/* ---- preview mode: scripted conversation so every UI state is visible without an API key ---- */
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+async function demo() {
+  demoRun = true; demoCancel = false;
+  const F = '```';
+  const say = async (t) => { onEvent({ type: 'text_start' }); for (const c of t.match(/[\s\S]{1,5}/g)) { if (demoCancel) return; onEvent({ type: 'text', text: c }); await sleep(16); } };
+  const tool = async (id, name, input, out, gate) => {
+    if (demoCancel) return false;
+    onEvent({ type: 'tool_start', id, name, input }); await sleep(500);
+    if (gate) {
+      const ok = await new Promise((r) => { demoWait = r; onEvent({ type: 'approval', id, name, input }); });
+      if (!ok || demoCancel) { onEvent({ type: 'tool_result', id, output: 'The user denied this action.', error: true }); return false; }
+      await sleep(300);
+    }
+    onEvent({ type: 'tool_result', id, output: out, error: false }); return true;
+  };
+  await say("I'll start by looking at how the project is laid out.");
+  await tool('d1', 'list_dir', { path: '.' }, 'app/\nsrc/\nREADME.md\npackage.json');
+  await tool('d2', 'read_file', { path: 'src/App.kt' }, '1\tclass App {\n2\t  fun build() = compile(cache = false)\n3\t}');
+  await say('Builds skip the cache. I will turn it on.');
+  const ok = await tool('d3', 'edit_file', { path: 'src/App.kt', old_str: 'compile(cache = false)', new_str: 'compile(cache = true)' }, 'Edited src/App.kt', true);
+  if (ok) {
+    await tool('d4', 'run_command', { command: './gradlew assembleDebug' }, 'BUILD SUCCESSFUL in 41s\n[exit 0]', true);
+    const spec = { type: 'bar', title: 'Build time (seconds)', labels: ['Before', 'After'], series: [{ name: 'Debug', data: [118, 41] }, { name: 'Release', data: [204, 96] }] };
+    await say('Done. Turning on the cache cut the build time a lot:\n\n' + F + 'chart\n' + JSON.stringify(spec) + '\n' + F + '\n\nThe change is one line in `src/App.kt`.');
+  } else if (!demoCancel) await say('No problem. I left the file unchanged.');
+  demoRun = false; onEvent({ type: 'done', stopped: demoCancel });
+}
+function stopRun() { if (demoRun) { demoCancel = true; if (demoWait) { demoWait(false); demoWait = null; } } else proton.stop(); }
+
+/* ---- composer ---- */
+function setBusy(b) { busy = b; sendBtn.innerHTML = ic(b ? 'stop' : 'send'); sendBtn.querySelector('path').style.fill = b ? 'currentColor' : 'none'; sendBtn.setAttribute('aria-label', b ? 'Stop' : 'Send'); }
+function grow() { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 200) + 'px'; }
+async function send() {
+  const t = input.value.trim();
+  if (!t) return;
+  if (S.hasKey && !S.workspace) return pick();
+  if (chat.querySelector('.hello')) chat.innerHTML = '';
+  add('u', t); input.value = ''; grow(); setBusy(true);
+  if (S.hasKey) proton.send(t); else demo();
+}
+sendBtn.onclick = () => (busy ? stopRun() : send());
+input.addEventListener('input', grow);
+input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!busy) send(); } });
+
+/* ---- insights panel (sample data until the agent is wired up) ---- */
+function renderInsights() {
+  const files = [['src/App.kt', 14], ['index.html', 11], ['main.js', 7], ['README.md', 3]];
+  $('#insights').innerHTML = '<h2>Insights</h2>'
+    + '<div class="stats"><div class="stat"><b>12</b><span>Sessions</span></div><div class="stat"><b>47</b><span>Edits</span></div><div class="stat"><b>23</b><span>Commands</span></div></div>'
+    + chartHtml({ type: 'bar', title: 'Edits this week', labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'], series: [{ data: [4, 9, 6, 12, 8, 3, 5] }] })
+    + chartHtml({ type: 'line', title: 'Tokens per session (k)', labels: ['1', '2', '3', '4', '5', '6'], series: [{ data: [12, 18, 15, 26, 22, 31] }] })
+    + chartHtml({ type: 'donut', title: 'Tool use', labels: ['Read', 'Edit', 'Search', 'Run'], series: [{ data: [34, 18, 9, 12] }] })
+    + '<div class="chart"><div class="ct">Most edited files</div>' + files.map(([n, v]) => `<div class="fb"><div><span>${esc(n)}</span><span>${v}</span></div><div class="meter"><i style="width:${v / 14 * 100}%"></i></div></div>`).join('') + '</div>'
+    + '<p class="fine">Sample data. Real numbers appear once the agent is connected.</p>';
+}
+$('#insBtn').onclick = () => { const p = $('#insights'); p.hidden = !p.hidden; $('#insBtn').classList.toggle('on', !p.hidden); if (!p.hidden) renderInsights(); };
+
+/* ---- editor (Code-OSS) ---- */
+function hideEditor() { $('#editorPane').hidden = true; $('#editorBtn').classList.remove('on'); $('#editorFrame').src = 'about:blank'; proton.stopEditor(); }
+$('#editorBtn').onclick = async () => {
+  const pane = $('#editorPane'), btn = $('#editorBtn');
+  if (!pane.hidden) { pane.hidden = true; btn.classList.remove('on'); return; }
+  if (IS_STUB) return toast('The editor runs in the desktop app');
+  if (!S.workspace) return toast('Open a folder first');
+  try { $('#editorFrame').src = await proton.startEditor(); pane.hidden = false; btn.classList.add('on'); }
+  catch (e) { toast(clean(e)); }
+};
+
+/* ---- settings ---- */
+function openSettings() {
+  $('#apiKey').value = ''; $('#apiKey').placeholder = S.hasKey ? 'Saved. Paste a new key to replace it' : 'sk-ant-...';
+  $('#model').value = S.model || ''; $('#editorPath').value = S.editorPath || '';
+  $('#settings').showModal();
+}
+$('#settingsBtn').onclick = openSettings;
+$('#pill').onclick = openSettings;
+$('#cancelSettings').onclick = () => $('#settings').close();
+$('#saveSettings').onclick = async () => {
+  await proton.setSettings({ apiKey: $('#apiKey').value.trim(), model: $('#model').value, editorPath: $('#editorPath').value });
+  S = { ...(await proton.getSettings()) }; renderWs();
+  $('#settings').close();
+};
+
+(async function init() {
+  if (navigator.userAgent.includes('Electron')) document.documentElement.classList.add('electron');
+  hydrate(); setBusy(false);
+  S = await proton.getSettings();
+  if (S.workspace) addProject(S.workspace);
+  renderTop(); renderSide(); empty();
+})();
+</script>
+</body>
+</html>
